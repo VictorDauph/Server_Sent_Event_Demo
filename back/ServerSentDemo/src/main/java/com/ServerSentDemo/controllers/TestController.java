@@ -5,11 +5,14 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
+@RequestMapping("/test")
 public class TestController{
 	
 	//Un emitter correspond à 1 utilisateur, il faudra stocker des emitters dans une liste afin de gérer plusieurs connections simultannées.
@@ -18,7 +21,7 @@ public class TestController{
 
 	//endpoint http de test
 	@GetMapping(value="/test", produces="application/json")
-    public ResponseEntity<String> test() {
+    public ResponseEntity<String> test() { 
     	return new ResponseEntity<>("Hello World!", HttpStatus.OK);
     }
 	
