@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,7 @@ export class SseServiceService {
   /*Le constructeur du EventSource va automatiquement lancer la requête et intercepter la réponse. 
   Tant que cet objet est en vie, la connexion le restera. De plus, si une erreur survient, 
   le processus de reconnexion se lancera automatiquement.*/
-  public subscribe() {
+  public createEventSource() {
 		this.eventSource = new EventSource(this.sseEndpoint);
 
     /* onopen() : réagit aux événement de type open. Ces événements sont générés par l'ouverture de la connexion. 
@@ -29,13 +31,22 @@ export class SseServiceService {
 			console.log(ev);
 			return null;
 		});
+
     /*onmessage() : réagit aux événement de type message. Tous les événements normaux seront de ce type. 
-    C'est dans cette méthode que devront concrètement être interprétés les messages envoyés par le Backend.
+    C'est dans cette méthode que devront concrètement être interprétés les messages enSvoyés par le Backend.
     (Ne pas oublier que même avec ce type, 
       tous les événements ne sont pas toujours pertinent, notamment les heartbeats.) */
-		this.eventSource.onmessage = ((ev) => {
-				console.log('évènement : '+ev.data)
-		});
+      //On retourne un observable qui permet de transférer le stream de données au fur et à mesure
+      //Il faudrait peut etre utiliser un Subject ou un BehaviorSubject pour pouvoir gérer l'affichage de messages sans action de l'utilsiateur?
+        return new Observable<String>(observer=>{
+          if(this.eventSource != undefined){
+            this.eventSource.onmessage = (ev:MessageEvent<string>)=>{
+              console.log('message reçu : '+ ev.data )
+              observer.next(ev.data);
+            }
+          }
 
-	}
+        })
+
+      }
 }
