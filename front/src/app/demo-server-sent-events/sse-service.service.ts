@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,7 @@ export class SseServiceService {
   //endpoint de la méthode qui gère l'emitter SSE côté back
   private sseEndpoint ='http://localhost:8080/test/SSE/subscribe';
   private eventSource: EventSource | undefined ;
+  public message$ = new Subject();
 
   constructor() { }
 
@@ -36,17 +37,18 @@ export class SseServiceService {
     C'est dans cette méthode que devront concrètement être interprétés les messages enSvoyés par le Backend.
     (Ne pas oublier que même avec ce type, 
       tous les événements ne sont pas toujours pertinent, notamment les heartbeats.) */
-      //On retourne un observable qui permet de transférer le stream de données au fur et à mesure
-      //Il faudrait peut etre utiliser un Subject ou un BehaviorSubject pour pouvoir gérer l'affichage de messages sans action de l'utilsiateur?
-        return new Observable<String>(observer=>{
-          if(this.eventSource != undefined){
-            this.eventSource.onmessage = (ev:MessageEvent<string>)=>{
-              console.log('message reçu : '+ ev.data )
-              observer.next(ev.data);
+      //On met en place un observablechaud qui permet de transférer le stream de données au fur et à mesure
+      //Observable chaud
+        if(this.eventSource != undefined){
+          this.eventSource.onmessage = (ev:MessageEvent<string>)=>{
+            console.log('message reçu : '+ ev.data )
+            //on ignore les heartbeats qui servent uniquement à maintenir la connexion en vie
+            if(ev.data!="heartbeat"){
+              this.message$.next(ev.data);
             }
+            
           }
 
-        })
-
       }
+  }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SseServiceService } from '../sse-service.service';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from 'src/app/config/api.service';
@@ -15,25 +15,16 @@ export class DemoComponentComponent implements OnInit{
     data:0
   }
 
-  //message reçu par le stream Server Side Event
-  message$:Observable<String>=new Observable();
-
-
-  constructor(private http :HttpClient, private sse: SseServiceService, private apiService:ApiService){
+  constructor(private http :HttpClient, public sse: SseServiceService, private apiService:ApiService,private cd: ChangeDetectorRef){
 
   }
 
   ngOnInit(){
-        //Cette méthode contient la logique permettant de gérer le stream sse et d'afficher les données via un observable
-        this.message$=this.sse.createEventSource();
-        /*
-        this.sse.createEventSource().subscribe(
-          (data)=>{
-            console.log('message reçu : '+ data )
-            this.message$= of(data);
-          }
-        );
-        */
+        //Cette méthode provoque la souscription au stream server side. Les données sont diffusées par l'observable chaud message$
+        this.sse.createEventSource();
+
+        //méthode, sans doute un peu roots, pour détecter et afficher les informations envoyées par le stream en temps réel sans action de l'utilisateur.
+        setInterval(()=>{this.cd.detectChanges }, 250);
   }
 
   onClick(){

@@ -1,5 +1,6 @@
 <p>demo-component works!</p>
-<h1>{{message$ | async}}</h1>
+<!-- le pipe async souscris automatiquement au Subject et affiche sa valeur-->
+<h1>{{ sse.message$ | async}}</h1>
 <div>
     <button (click)="onClick()">Add</button>
 </div>

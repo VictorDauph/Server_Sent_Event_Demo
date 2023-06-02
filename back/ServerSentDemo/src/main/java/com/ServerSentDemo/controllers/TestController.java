@@ -64,7 +64,7 @@ public class TestController{
 	
 	//La méthode heartbeat sert à envoyer un message quelconque au frontend afin de maintenir la connexion en vie.
 	//à l'exception de la méthode du endpoint en lui-même, toute la logique de création, d'initialisation, de maintient en vie de la connexion et d'envoi de données peut être déplacée dans un service adéquat.
-	@Scheduled(fixedRate = 3000)  
+	@Scheduled(fixedRate = 30000)  
 	public void heartbeat() throws IOException {
 		this.emitter.send(SseEmitter.event()
 					.name("message")
